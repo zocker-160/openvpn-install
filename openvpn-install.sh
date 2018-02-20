@@ -98,7 +98,7 @@ if [[ -e /etc/openvpn/server.conf ]]; then
 			echo "Tell me a name for the client cert"
 			while [[ "$CLIENT" =~ ' ' || "$CLIENT" == '' ]]; do
 				echo "Please, use one word only, no special characters"
-				read -p "Client name: " -e -i client CLIENT
+				read -p "Client name: " -e CLIENT
 			done
 			echo "For how many days do you want this client cert to be valid?"
 			read -p "Certificate validity (days): " -e -i 365 CERT_VALIDITY

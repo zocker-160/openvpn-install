@@ -88,7 +88,7 @@ if [[ -e /etc/openvpn/server.conf ]]; then
 				read -p "Client name: " -e -i client CLIENT
 			done
 			echo "For how many days do you want this client cert to be valid?"
-			read -p "Certificate validity (days): " -e -i 3650 CERT_VALIDITY
+			read -p "Certificate validity (days): " -e -i 365 CERT_VALIDITY
 			cd /etc/openvpn/easy-rsa/
 			# Think of a better way to do this.
 			export EASYRSA_CERT_EXPIRE=$CERT_VALIDITY

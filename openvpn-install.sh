@@ -68,6 +68,8 @@ deleteclient (){
 	rm -rf pki/issued/$1.crt
 	rm -rf /etc/openvpn/crl.pem
 	cp /etc/openvpn/easy-rsa/pki/crl.pem /etc/openvpn/crl.pem
+	# remove local client.ovpn-file
+	rm -rf ~/$1.ovpn
 }
 
 # Try to get our IP from the system and fallback to the Internet.

@@ -131,6 +131,17 @@ if [[ -e /etc/openvpn/server.conf ]]; then
 			if [[ "$CLIENTNUMBER" = 'x' ]]; then
 				exit
 			fi
+			#check if selected client does exist
+			if [[ !("$CLIENTNUMBER" =~ ^[0-9]+$) ]]; then
+				echo ""
+				echo "error: please enter a valid number!" 
+				exit
+			fi
+			if [[ "$CLIENTNUMBER" < "1" || "$CLIENTNUMBER" > "$NUMBEROFCLIENTS" || ${#CLIENTNUMBER} != ${#NUMBEROFCLIENTS} ]]; then
+				echo ""
+				echo "error: could not find client number $CLIENTNUMBER."
+				exit
+			fi
 			CLIENT=$(tail -n +2 /etc/openvpn/easy-rsa/pki/index.txt | grep "^V" | cut -d '=' -f 2 | sed -n "$CLIENTNUMBER"p)
 			deleteclient "$CLIENT"
 			# CRL is read with each client connection, when OpenVPN is dropped to nobody

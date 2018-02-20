@@ -278,8 +278,9 @@ else
 	./easyrsa --batch build-ca nopass
 	./easyrsa gen-dh
 	./easyrsa build-server-full server nopass
+	export EASYRSA_CERT_EXPIRE=$CERT_VALIDITY
 	./easyrsa build-client-full $CLIENT nopass
-	EASYRSA_CRL_DAYS=$CERT_VALIDITY ./easyrsa gen-crl
+	EASYRSA_CRL_DAYS=3650 ./easyrsa gen-crl
 	# Move the stuff we need
 	cp pki/ca.crt pki/private/ca.key pki/dh.pem pki/issued/server.crt pki/private/server.key pki/crl.pem /etc/openvpn
 	# CRL is read with each client connection, when OpenVPN is dropped to nobody
@@ -425,7 +426,7 @@ exit 0' > $RCLOCAL
 		echo ""
 		echo "If your server is NATed (e.g. LowEndSpirit), I need to know the external IP"
 		echo "If that's not the case, just ignore this and leave the next field blank"
-		read -p "External IP: " -e USEREXTERNALIP
+		read -p "External IP: " -e -i $(wget -4qO- "http://whatismyip.akamai.com/") USEREXTERNALIP
 		if [[ "$USEREXTERNALIP" != "" ]]; then
 			IP=$USEREXTERNALIP
 		fi

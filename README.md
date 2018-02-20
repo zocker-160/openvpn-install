@@ -8,7 +8,7 @@ Run the script and follow the assistant:
 
   ```
   wget https://git.io/vAlIG -O openvpn-install.sh
-  chmod +x /openvpn-install.sh
+  chmod +x ./openvpn-install.sh
   sudo ./openvpn-install.sh
   ```
 

@@ -188,7 +188,7 @@ if [[ -e /etc/openvpn/server.conf ]]; then
 					fi
 				fi
 				if [[ "$OS" = 'debian' ]]; then
-					apt-get remove --purge -y openvpn
+					apt-get purge openvpn -y
 				else
 					yum remove openvpn -y
 				fi

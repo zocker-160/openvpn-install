@@ -59,6 +59,17 @@ newclient () {
 	echo "</tls-auth>" >> ~/$1.ovpn
 }
 
+deleteclient (){
+	cd /etc/openvpn/easy-rsa/
+	./easyrsa --batch revoke $1
+	EASYRSA_CRL_DAYS=3650 ./easyrsa gen-crl
+	rm -rf pki/reqs/$1.req
+	rm -rf pki/private/$1.key
+	rm -rf pki/issued/$1.crt
+	rm -rf /etc/openvpn/crl.pem
+	cp /etc/openvpn/easy-rsa/pki/crl.pem /etc/openvpn/crl.pem
+}
+
 # Try to get our IP from the system and fallback to the Internet.
 # I do this to make the script compatible with NATed servers (lowendspirit.com)
 # and to avoid getting an IPv6.
@@ -119,14 +130,7 @@ if [[ -e /etc/openvpn/server.conf ]]; then
 				exit
 			fi
 			CLIENT=$(tail -n +2 /etc/openvpn/easy-rsa/pki/index.txt | grep "^V" | cut -d '=' -f 2 | sed -n "$CLIENTNUMBER"p)
-			cd /etc/openvpn/easy-rsa/
-			./easyrsa --batch revoke $CLIENT
-			EASYRSA_CRL_DAYS=3650 ./easyrsa gen-crl
-			rm -rf pki/reqs/$CLIENT.req
-			rm -rf pki/private/$CLIENT.key
-			rm -rf pki/issued/$CLIENT.crt
-			rm -rf /etc/openvpn/crl.pem
-			cp /etc/openvpn/easy-rsa/pki/crl.pem /etc/openvpn/crl.pem
+			deleteclient "$CLIENT"
 			# CRL is read with each client connection, when OpenVPN is dropped to nobody
 			chown nobody:$GROUPNAME /etc/openvpn/crl.pem
 			echo ""

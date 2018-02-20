@@ -196,8 +196,12 @@ if [[ -e /etc/openvpn/server.conf ]]; then
 				echo ""
 				read -p "Do you want to remove all remaining .ovpn-files? [y/n]: " -e -i y FILEREM
 				if [[ "$FILEREM" = 'y' ]]; then
+					echo ""
+					echo "removing files......."
 					rm -rf ~/*.ovpn
-				fi				
+					echo "Done!"
+					echo ""
+				fi
 			else
 				echo ""
 				echo "Removal aborted!"

@@ -198,7 +198,7 @@ else
 	read -p "IP address: " -e -i $IP IP
 	echo ""
 	echo "Which protocol do you want for OpenVPN connections?"
-	echo "   1) UDP (recommended)"
+	echo "   1) UDP (recommended/faster)"
 	echo "   2) TCP"
 	read -p "Protocol [1-2]: " -e -i 1 PROTOCOL
 	case $PROTOCOL in

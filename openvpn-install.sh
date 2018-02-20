@@ -125,25 +125,17 @@ if [[ -e /etc/openvpn/server.conf ]]; then
 			echo ""
 			echo "Select the existing client certificate you want to revoke"
 			tail -n +2 /etc/openvpn/easy-rsa/pki/index.txt | grep "^V" | cut -d '=' -f 2 | nl -s ') '
-			if [[ "$NUMBEROFCLIENTS" = '1' ]]; then
-				read -p "Select one client [1] or 'x' to exit: " CLIENTNUMBER
-			else
-				read -p "Select one client [1-$NUMBEROFCLIENTS] or 'x' to exit: " CLIENTNUMBER
-			fi
-			if [[ "$CLIENTNUMBER" = 'x' ]]; then
-				exit
-			fi
 			#check if selected client does exist
-			if [[ !("$CLIENTNUMBER" =~ ^[0-9]+$) ]]; then
-				echo ""
-				echo "error: please enter a valid number!" 
-				exit
-			fi
-			if [[ "$CLIENTNUMBER" < "1" || "$CLIENTNUMBER" > "$NUMBEROFCLIENTS" || ${#CLIENTNUMBER} != ${#NUMBEROFCLIENTS} ]]; then
-				echo ""
-				echo "error: could not find client number $CLIENTNUMBER."
-				exit
-			fi
+			until [[ "$CLIENTNUMBER" =~ ^[1-9]+[0-9]*$ ]] && [ "$CLIENTNUMBER" -ge "1" ]  && [ "$CLIENTNUMBER" -le "$NUMBEROFCLIENTS" ]; do
+				if [[ "$NUMBEROFCLIENTS" = '1' ]]; then
+					read -p "Select one client [1] or 'x' to exit: " CLIENTNUMBER
+				else
+					read -p "Select one client [1-$NUMBEROFCLIENTS] or 'x' to exit: " CLIENTNUMBER
+				fi
+				if [[ "$CLIENTNUMBER" = 'x' ]]; then
+					exit
+				fi
+			done
 			CLIENT=$(tail -n +2 /etc/openvpn/easy-rsa/pki/index.txt | grep "^V" | cut -d '=' -f 2 | sed -n "$CLIENTNUMBER"p)
 			deleteclient "$CLIENT"
 			# CRL is read with each client connection, when OpenVPN is dropped to nobody
@@ -254,6 +246,11 @@ else
 	echo "Please, use one word only, no special characters"
 	read -p "Client name: " -e -i client CLIENT
 	echo ""
+	until [[ "$CERT_VALIDITY" =~ ^[1-9]+[0-9]*$ ]]; do
+		echo "For how many days do you want this client cert to be valid?"
+		read -p "Certificate validity (days): " -e -i 365 CERT_VALIDITY
+	done
+	echo ""
 	echo "Okay, that was all I needed. We are ready to setup your OpenVPN server now"
 	read -n1 -r -p "Press any key to continue..."
 	if [[ "$OS" = 'debian' ]]; then
@@ -282,7 +279,7 @@ else
 	./easyrsa gen-dh
 	./easyrsa build-server-full server nopass
 	./easyrsa build-client-full $CLIENT nopass
-	EASYRSA_CRL_DAYS=3650 ./easyrsa gen-crl
+	EASYRSA_CRL_DAYS=$CERT_VALIDITY ./easyrsa gen-crl
 	# Move the stuff we need
 	cp pki/ca.crt pki/private/ca.key pki/dh.pem pki/issued/server.crt pki/private/server.key pki/crl.pem /etc/openvpn
 	# CRL is read with each client connection, when OpenVPN is dropped to nobody

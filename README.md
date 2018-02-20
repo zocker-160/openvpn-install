@@ -12,7 +12,7 @@ Run the script and follow the assistant:
   sudo ./openvpn-install.sh
   ```
 
-Once it ends, you can run it again to add more users, remove some of them or even completely uninstall OpenVPN.
+Once it ends, you can run it again to add more users, remove some of them or completely uninstall OpenVPN.
 
 ### Donations
 

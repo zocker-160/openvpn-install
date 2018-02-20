@@ -87,7 +87,11 @@ if [[ -e /etc/openvpn/server.conf ]]; then
 				echo "Please, use one word only, no special characters"
 				read -p "Client name: " -e -i client CLIENT
 			done
+			echo "For how many days do you want this client cert to be valid?"
+			read -p "Certificate validity (days): " -e -i 30 CERT_VALIDITY
 			cd /etc/openvpn/easy-rsa/
+			# Think of a better way to do this.
+			export EASYRSA_CERT_EXPIRE=$CERT_VALIDITY
 			./easyrsa build-client-full $CLIENT nopass
 			# Generates the custom client.ovpn
 			newclient "$CLIENT"

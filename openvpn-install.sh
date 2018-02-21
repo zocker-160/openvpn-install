@@ -230,9 +230,11 @@ else
 	echo "using Google DNS"
 	DNS=6
 	echo ""
-	echo "Finally, tell me your name for the client certificate"
-	echo "Please, use one word only, no special characters"
-	read -p "Client name: " -e -i client CLIENT
+	echo "Finally, tell me your name for the client certificate"	
+	while [[ "$CLIENT" =~ ' ' || "$CLIENT" == '' ]]; do
+		echo "Please, use one word only, no special characters"
+		read -p "Client name: " -e -i newclient CLIENT
+	done		
 	echo ""
 	until [[ "$CERT_VALIDITY" =~ ^[1-9]+[0-9]*$ ]]; do
 		echo "For how many days do you want this client cert to be valid?"

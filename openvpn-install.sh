@@ -72,13 +72,11 @@ deleteclient (){
 	rm -rf ~/$1.ovpn
 }
 
-# Try to get our IP from the system and fallback to the Internet.
-# I do this to make the script compatible with NATed servers (lowendspirit.com)
-# and to avoid getting an IPv6.
-IP=$(ip addr | grep 'inet' | grep -v inet6 | grep -vE '127\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | grep -o -E '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | head -1)
-if [[ "$IP" = "" ]]; then
-		IP=$(wget -4qO- "http://whatismyip.akamai.com/")
-fi
+## IPv6 address
+# IP=$(ip addr | grep 'inet' | grep -v inet6 | grep -vE '127\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | grep -o -E '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | head -1)
+# if [[ "$IP" = "" ]]; then
+		IP=$(wget -qO- ipv6.icanhazip.com)
+# fi
 
 if [[ -e /etc/openvpn/server.conf ]]; then
 	while :
@@ -213,34 +211,22 @@ else
 	echo "I need to ask you a few questions before starting the setup"
 	echo "You can leave the default options and just press enter if you are ok with them"
 	echo ""
-	echo "First I need to know the IPv4 address of the network interface you want OpenVPN"
+	echo "First I need to know the IPv6 address of the network interface you want OpenVPN"
 	echo "listening to."
 	read -p "IP address: " -e -i $IP IP
 	echo ""
-	echo "Which protocol do you want for OpenVPN connections?"
-	echo "   1) UDP (recommended/faster)"
-	echo "   2) TCP"
-	read -p "Protocol [1-2]: " -e -i 1 PROTOCOL
-	case $PROTOCOL in
-		1) 
-		PROTOCOL=udp
-		;;
-		2) 
-		PROTOCOL=tcp
-		;;
-	esac
-	echo ""
-	echo "What port do you want OpenVPN listening to?"
-	read -p "Port: " -e -i 1194 PORT
-	echo ""
-	echo "Which DNS do you want to use with the VPN?"
-	echo "   1) Current system resolvers"
-	echo "   2) Google"
-	echo "   3) OpenDNS"
-	echo "   4) NTT"
-	echo "   5) Hurricane Electric"
-	echo "   6) Verisign"
+	echo "What port do you want for OpenVPN?"
+	read -p "Port: " -e -i 1199 PORT
+	# echo ""
+	# echo "What DNS do you want to use with the VPN?"
+	# echo "   1) Current system resolvers"
+	# echo "   2) OpenDNS"
+	# echo "   3) Level 3"
+	# echo "   4) NTT"
+	# echo "   5) Hurricane Electric"
+	# echo "   6) Google"
 	read -p "DNS [1-6]: " -e -i 1 DNS
+	DNS=6
 	echo ""
 	echo "Finally, tell me your name for the client certificate"
 	echo "Please, use one word only, no special characters"
@@ -289,10 +275,9 @@ else
 	openvpn --genkey --secret /etc/openvpn/ta.key
 	# Generate server.conf
 	echo "port $PORT
-proto $PROTOCOL
+proto udp6
 dev tun
-sndbuf 0
-rcvbuf 0
+tun-ipv6
 ca ca.crt
 cert server.crt
 key server.key
@@ -301,41 +286,35 @@ auth SHA512
 tls-auth ta.key 0
 topology subnet
 server 10.8.0.0 255.255.255.0
+server-ipv6 2001:abcd:abcd:2::/64
 ifconfig-pool-persist ipp.txt" > /etc/openvpn/server.conf
 	echo 'push "redirect-gateway def1 bypass-dhcp"' >> /etc/openvpn/server.conf
 	# DNS
 	case $DNS in
-		1) 
-		# Locate the proper resolv.conf
-		# Needed for systems running systemd-resolved
-		if grep -q "127.0.0.53" "/etc/resolv.conf"; then
-			RESOLVCONF='/run/systemd/resolve/resolv.conf'
-		else
-			RESOLVCONF='/etc/resolv.conf'
-		fi
-		# Obtain the resolvers from resolv.conf and use them for OpenVPN
-		grep -v '#' $RESOLVCONF | grep 'nameserver' | grep -E -o '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | while read line; do
-			echo "push \"dhcp-option DNS $line\"" >> /etc/openvpn/server.conf
-		done
-		;;
-		2) 
-		echo 'push "dhcp-option DNS 8.8.8.8"' >> /etc/openvpn/server.conf
-		echo 'push "dhcp-option DNS 8.8.4.4"' >> /etc/openvpn/server.conf
-		;;
-		3)
-		echo 'push "dhcp-option DNS 208.67.222.222"' >> /etc/openvpn/server.conf
-		echo 'push "dhcp-option DNS 208.67.220.220"' >> /etc/openvpn/server.conf
-		;;
-		4) 
-		echo 'push "dhcp-option DNS 129.250.35.250"' >> /etc/openvpn/server.conf
-		echo 'push "dhcp-option DNS 129.250.35.251"' >> /etc/openvpn/server.conf
-		;;
-		5) 
-		echo 'push "dhcp-option DNS 74.82.42.42"' >> /etc/openvpn/server.conf
-		;;
+		# 1) 
+		# # Obtain the resolvers from resolv.conf and use them for OpenVPN
+		# grep -v '#' /etc/resolv.conf | grep 'nameserver' | grep -E -o '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | while read line; do
+		# 	echo "push \"dhcp-option DNS $line\"" >> /etc/openvpn/server.conf
+		# done
+		# ;;
+		# 2)
+		# echo 'push "dhcp-option DNS 208.67.222.222"' >> /etc/openvpn/server.conf
+		# echo 'push "dhcp-option DNS 208.67.220.220"' >> /etc/openvpn/server.conf
+		# ;;
+		# 3) 
+		# echo 'push "dhcp-option DNS 4.2.2.2"' >> /etc/openvpn/server.conf
+		# echo 'push "dhcp-option DNS 4.2.2.4"' >> /etc/openvpn/server.conf
+		# ;;
+		# 4) 
+		# echo 'push "dhcp-option DNS 129.250.35.250"' >> /etc/openvpn/server.conf
+		# echo 'push "dhcp-option DNS 129.250.35.251"' >> /etc/openvpn/server.conf
+		# ;;
+		# 5) 
+		# echo 'push "dhcp-option DNS 74.82.42.42"' >> /etc/openvpn/server.conf
+		# ;;
 		6) 
-		echo 'push "dhcp-option DNS 64.6.64.6"' >> /etc/openvpn/server.conf
-		echo 'push "dhcp-option DNS 64.6.65.6"' >> /etc/openvpn/server.conf
+		echo 'push "dhcp-option DNS 10.8.0.1"' >> /etc/openvpn/server.conf
+		echo 'push "dhcp-option DNS 8.8.4.4"' >> /etc/openvpn/server.conf
 		;;
 	esac
 	echo "keepalive 10 120
@@ -349,9 +328,16 @@ status openvpn-status.log
 verb 3
 crl-verify crl.pem" >> /etc/openvpn/server.conf
 	# Enable net.ipv4.ip_forward for the system
-	sed -i '/\<net.ipv4.ip_forward\>/c\net.ipv4.ip_forward=1' /etc/sysctl.conf
-	if ! grep -q "\<net.ipv4.ip_forward\>" /etc/sysctl.conf; then
-		echo 'net.ipv4.ip_forward=1' >> /etc/sysctl.conf
+	if [[ "$OS" = 'debian' ]]; then
+		sed -i 's|#net.ipv4.ip_forward=1|net.ipv4.ip_forward=1|' /etc/sysctl.conf
+		sed -i 's|#net.ipv6.conf.all.forwarding=1|net.ipv6.conf.all.forwarding=1|' /etc/sysctl.conf
+	else
+		# CentOS 5 and 6
+		sed -i 's|net.ipv4.ip_forward = 0|net.ipv4.ip_forward = 1|' /etc/sysctl.conf
+		# CentOS 7
+		if ! grep -q "net.ipv4.ip_forward=1" "/etc/sysctl.conf"; then
+			echo 'net.ipv4.ip_forward=1' >> /etc/sysctl.conf
+		fi
 	fi
 	# Avoid an unneeded reboot
 	echo 1 > /proc/sys/net/ipv4/ip_forward
@@ -434,9 +420,8 @@ exit 0' > $RCLOCAL
 	# client-common.txt is created so we have a template to add further users later
 	echo "client
 dev tun
-proto $PROTOCOL
-sndbuf 0
-rcvbuf 0
+tun-ipv6
+proto udp6
 remote $IP $PORT
 resolv-retry infinite
 nobind

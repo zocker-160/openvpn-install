@@ -220,7 +220,9 @@ else
 	echo "Which protocol do you want for OpenVPN connections?"
 	echo "   1) UDP (recommended/faster)"
 	echo "   2) TCP"
-	read -p "Protocol [1-2]: " -e -i 1 PROTOCOL
+	until [[ "$PROTOCOL" = '1' || "$PROTOCOL" = '2' ]]; do
+		read -p "Protocol [1-2]: " -e -i 1 PROTOCOL
+	done
 	case $PROTOCOL in
 		1) 
 		PROTOCOL=udp
@@ -242,9 +244,11 @@ else
 	echo "   6) Verisign"
 	read -p "DNS [1-6]: " -e -i 1 DNS
 	echo ""
-	echo "Finally, tell me your name for the client certificate"
-	echo "Please, use one word only, no special characters"
-	read -p "Client name: " -e -i client CLIENT
+	echo "Finally, tell me your name for the client certificate"	
+	while [[ "$CLIENT" =~ ' ' || "$CLIENT" == '' ]]; do
+		echo "Please, use one word only, no special characters"
+		read -p "Client name: " -e -i newclient CLIENT
+	done		
 	echo ""
 	until [[ "$CERT_VALIDITY" =~ ^[1-9]+[0-9]*$ ]]; do
 		echo "For how many days do you want this client cert to be valid?"

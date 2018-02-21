@@ -225,7 +225,9 @@ else
 	# echo "   4) NTT"
 	# echo "   5) Hurricane Electric"
 	# echo "   6) Google"
-	read -p "DNS [1-6]: " -e -i 1 DNS
+	# read -p "DNS [1-6]: " -e -i 1 DNS
+	echo ""
+	echo "using Google DNS"
 	DNS=6
 	echo ""
 	echo "Finally, tell me your name for the client certificate"

@@ -146,7 +146,7 @@ if [[ -e /etc/openvpn/server.conf ]]; then
 			;;
 			3) 
 			echo ""
-			read -p "Do you really want to remove OpenVPN? [y/n]: " -e -i n REMOVE
+			read -n 1 -p "Do you really want to remove OpenVPN? [y/n]: " -e REMOVE
 			if [[ "$REMOVE" = 'y' ]]; then
 				PORT=$(grep '^port ' /etc/openvpn/server.conf | cut -d " " -f 2)
 				PROTOCOL=$(grep '^proto ' /etc/openvpn/server.conf | cut -d " " -f 2)
@@ -188,7 +188,7 @@ if [[ -e /etc/openvpn/server.conf ]]; then
 				echo ""
 				echo "OpenVPN removed!"
 				echo ""
-				read -p "Do you want to remove all remaining .ovpn-files? [y/n]: " -e -i y FILEREM
+				read -n 1 -p "Do you want to remove all remaining .ovpn-files? [y/n]: " -e FILEREM
 				if [[ "$FILEREM" = 'y' ]]; then
 					echo ""
 					echo "removing files......."
@@ -256,7 +256,7 @@ else
 	done
 	echo ""
 	echo "Okay, that was all I needed. We are ready to setup your OpenVPN server now"
-	read -n1 -r -p "Press any key to continue..."
+	read -n 1 -r -p "Press any key to continue..."
 	if [[ "$OS" = 'debian' ]]; then
 		apt-get update
 		apt-get install openvpn iptables openssl ca-certificates -y

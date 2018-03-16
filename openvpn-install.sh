@@ -146,8 +146,8 @@ if [[ -e /etc/openvpn/server.conf ]]; then
 			;;
 			3) 
 			echo ""
-			read -n 1 -p "Do you really want to remove OpenVPN? [y/n]: " -e REMOVE
-			if [[ "$REMOVE" = 'y' ]]; then
+			read -p "Do you really want to remove OpenVPN? [yes/NO]: " -e -i NO REMOVE
+			if [[ "$REMOVE" = 'yes' ]]; then
 				PORT=$(grep '^port ' /etc/openvpn/server.conf | cut -d " " -f 2)
 				PROTOCOL=$(grep '^proto ' /etc/openvpn/server.conf | cut -d " " -f 2)
 				if pgrep firewalld; then

@@ -238,7 +238,7 @@ else
 	echo "Which DNS do you want to use with the VPN?"
 	echo "   1) Current system resolvers"
 	echo "   2) Google"
-	echo "   3) OpenDNS"
+	echo "   3) Cloudlare"
 	echo "   4) NTT"
 	echo "   5) Hurricane Electric"
 	echo "   6) Verisign"
@@ -327,8 +327,8 @@ ifconfig-pool-persist ipp.txt" > /etc/openvpn/server.conf
 		echo 'push "dhcp-option DNS 8.8.4.4"' >> /etc/openvpn/server.conf
 		;;
 		3)
-		echo 'push "dhcp-option DNS 208.67.222.222"' >> /etc/openvpn/server.conf
-		echo 'push "dhcp-option DNS 208.67.220.220"' >> /etc/openvpn/server.conf
+		echo 'push "dhcp-option DNS 1.1.1.1"' >> /etc/openvpn/server.conf
+		echo 'push "dhcp-option DNS 1.0.0.1"' >> /etc/openvpn/server.conf
 		;;
 		4) 
 		echo 'push "dhcp-option DNS 129.250.35.250"' >> /etc/openvpn/server.conf

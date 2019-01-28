@@ -276,7 +276,8 @@ else
 	mv ~/EasyRSA-3.0.5/ /etc/openvpn/
 	mv /etc/openvpn/EasyRSA-3.0.5/ /etc/openvpn/easy-rsa/
 	chown -R root:root /etc/openvpn/easy-rsa/
-	rm -rf ~/EasyRSA-3.0.4.tgz
+	#rm -rf ~/EasyRSA-3.0.5.tgz
+	rm -rf ~/easyrsa.tgz
 	cd /etc/openvpn/easy-rsa/
 	# Create the PKI, set up the CA, the DH params and the server + client certificates
 	./easyrsa init-pki

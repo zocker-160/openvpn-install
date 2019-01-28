@@ -238,7 +238,7 @@ else
 	echo "Which DNS do you want to use with the VPN?"
 	echo "   1) Current system resolvers"
 	echo "   2) Google"
-	echo "   3) Cloudlare"
+	echo "   3) 1.1.1.1"
 	echo "   4) NTT"
 	echo "   5) Hurricane Electric"
 	echo "   6) Verisign"
